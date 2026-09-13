@@ -9,7 +9,7 @@
     "type": "flarum-extension",
     "license": "MIT",
     "require": {
-        "flarum/core": "^1.2"
+        "flarum/core": "^2.0.0-rc.8"
     },
     "authors": [
         {
@@ -19,7 +19,7 @@
         }
     ],
     "support": {
-        "source": "https://github.com/litalino/flarum-title-content-length"
+        "source": "https://github.com/lowseekai/flarum-title-content-length"
     },
     "autoload": {
         "psr-4": {

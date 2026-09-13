@@ -1,0 +1,23 @@
+litalino-title-content-length:
+  admin:
+    permissions:
+      bypass_title_label: 跳过标题长度检查
+      bypass_content_label: 跳过内容长度检查
+    settings:
+      limit_title_label: 启用标题长度限制
+      limit_title_help: 启用后使用自定义的标题长度限制；关闭后使用 Flarum 默认限制。
+      min_title_label: 标题最小长度
+      min_title_help: 设置标题允许的最小字符数，默认值为 15。
+      max_title_label: 标题最大长度
+      max_title_help: 设置标题允许的最大字符数，默认值为 180。
+      limit_content_label: 启用内容长度限制
+      limit_content_help: 启用后使用自定义的内容长度限制；关闭后使用 Flarum 默认限制。
+      min_content_label: 内容最小长度
+      min_content_help: 设置内容允许的最小字符数，默认值为 30。
+      max_content_label: 内容最大长度
+      max_content_help: 设置内容允许的最大字符数，默认值为 65000。
+
+validation:
+  attributes:
+    title: 标题
+    content: 内容
