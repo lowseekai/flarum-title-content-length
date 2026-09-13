@@ -78,14 +78,17 @@ return [
 
     (new Extend\ApiResource(DiscussionResource::class))
         ->field('title', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-title-length', 3, 80);
+            return $replaceLengthRules($field, 'litalino-title-length', 3, 80)
+                ->validationAttributes(['title' => '标题']);
         })
         ->field('content', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000);
+            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000)
+                ->validationAttributes(['content' => '内容']);
         }),
 
     (new Extend\ApiResource(PostResource::class))
         ->field('content', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000);
+            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000)
+                ->validationAttributes(['content' => '内容']);
         }),
 ];
