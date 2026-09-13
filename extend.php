@@ -11,12 +11,19 @@
 
 namespace Litalino\TitleContentLength;
 
+use Flarum\Api\Context;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Extend;
 use Flarum\Settings\SettingsRepositoryInterface;
 
-$replaceLengthRules = static function ($field, string $settingPrefix, int $defaultMin, int $defaultMax) {
+$replaceLengthRules = static function (
+    $field,
+    string $settingPrefix,
+    int $defaultMin,
+    int $defaultMax,
+    string $bypassPermission
+) {
     $settings = resolve(SettingsRepositoryInterface::class);
 
     if (! $settings->get($settingPrefix.'.limit', true)) {
@@ -36,27 +43,39 @@ $replaceLengthRules = static function ($field, string $settingPrefix, int $defau
 
     $hasMinimum = false;
     $hasMaximum = false;
+    $conditionWithoutBypass = static function ($condition) use ($bypassPermission) {
+        return static function (Context $context, $model = null) use ($condition, $bypassPermission) {
+            if ($context->getActor()->hasPermission($bypassPermission)) {
+                return false;
+            }
+
+            return is_callable($condition) ? $condition($context, $model) : $condition;
+        };
+    };
 
     foreach ($rules as $rule) {
         $value = $rule['rule'];
+        $condition = $rule['condition'];
 
         if (is_string($value) && str_starts_with($value, 'min:')) {
             $value = 'min:'.$minimum;
             $hasMinimum = true;
+            $condition = $conditionWithoutBypass($condition);
         } elseif (is_string($value) && str_starts_with($value, 'max:')) {
             $value = 'max:'.$maximum;
             $hasMaximum = true;
+            $condition = $conditionWithoutBypass($condition);
         }
 
-        $field->rule($value, $rule['condition']);
+        $field->rule($value, $condition);
     }
 
     if (! $hasMinimum) {
-        $field->minLength($minimum);
+        $field->minLength($minimum, $conditionWithoutBypass(true));
     }
 
     if (! $hasMaximum) {
-        $field->maxLength($maximum);
+        $field->maxLength($maximum, $conditionWithoutBypass(true));
     }
 
     return $field;
@@ -78,17 +97,17 @@ return [
 
     (new Extend\ApiResource(DiscussionResource::class))
         ->field('title', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-title-length', 3, 80)
+            return $replaceLengthRules($field, 'litalino-title-length', 3, 80, 'litalino-title-content-length.bypassTitle')
                 ->validationAttributes(['title' => '标题']);
         })
         ->field('content', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000)
+            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000, 'litalino-title-content-length.bypassContent')
                 ->validationAttributes(['content' => '内容']);
         }),
 
     (new Extend\ApiResource(PostResource::class))
         ->field('content', function ($field) use ($replaceLengthRules) {
-            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000)
+            return $replaceLengthRules($field, 'litalino-content-length', 0, 63000, 'litalino-title-content-length.bypassContent')
                 ->validationAttributes(['content' => '内容']);
         }),
 ];
